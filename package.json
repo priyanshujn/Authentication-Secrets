@@ -15,6 +15,7 @@
     "ejs": "^3.1.9",
     "expres": "^0.0.5",
     "express": "^4.18.2",
+    "md5": "^2.3.0",
     "mongoose": "^7.4.1",
     "mongoose-encryption": "^2.1.2"
   }

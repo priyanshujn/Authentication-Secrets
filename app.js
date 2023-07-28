@@ -5,6 +5,7 @@ const ejs = require('ejs');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const encrypt = require('mongoose-encryption');
+const md5 = require('md5');
 
 const app = express();
 
@@ -20,12 +21,32 @@ const userSchema = new mongoose.Schema({
     password: String
 });
 
-userSchema.plugin(encrypt, { secret: process.env.SECRET_KEY, encryptedFields: ['password'] });
+// userSchema.plugin(encrypt, { secret: process.env.SECRET_KEY, encryptedFields: ['password'] });
 
 const User = new mongoose.model('User', userSchema);
 
 app.get('/', function (req, res) {
     res.render('home');
+});
+
+app.get('/register', function (req, res) {
+    res.render('register');
+});
+
+app.post('/register', function (req, res) {
+
+    const user = new User({
+        email: req.body.username,
+        password: md5(req.body.password)
+    });
+
+    user.save()
+        .then(() =>
+            console.log('User added successfully'))
+        .catch(err =>
+            console.error(err));
+
+    res.render('secrets');
 });
 
 app.get('/login', function (req, res) {
@@ -36,7 +57,7 @@ app.post('/login', function (req, res) {
 
     console.log(req.body);
     const username = req.body.username;
-    const password = req.body.password;
+    const password = md5(req.body.password);
 
     User.findOne({
         email: username
@@ -52,27 +73,6 @@ app.post('/login', function (req, res) {
         })
         .catch(err => console.error(err));
 });
-
-app.get('/register', function (req, res) {
-    res.render('register');
-});
-
-app.post('/register', function (req, res) {
-
-    const user = new User({
-        email: req.body.username,
-        password: req.body.password
-    });
-
-    user.save()
-        .then(() =>
-            console.log('User added successfully'))
-        .catch(err =>
-            console.error(err));
-
-    res.render('secrets');
-});
-
 
 
 app.listen(3000, function () {
